@@ -30,9 +30,8 @@ async function getDepartments() {
 
 async function getRoles() {
     let roles = await query(`SELECT title AS name, id AS value FROM role`);
-
     return roles;
-}
+};
 
 async function getManagers() {
     let managers = await query(`
