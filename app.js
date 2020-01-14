@@ -75,8 +75,7 @@ function getByManager(managerId) {
     query(`
         SELECT e.id, CONCAT(e.first_name, ' ', e.last_name) AS Employee FROM employee e
         INNER JOIN employee m ON m.id = e.manager_id
-        WHERE e.manager_id = ${managerId},
-        GROUP BY Employee
+        WHERE e.manager_id = ${managerId}
         `)
     .then(results => {
         console.table(results);
