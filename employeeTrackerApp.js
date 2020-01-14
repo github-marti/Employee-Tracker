@@ -2,88 +2,6 @@ const inquirer = require("inquirer");
 const connection = require("./config/connection");
 let employeeArray, managerArray, departmentArray, roleArray;
 
-const getByDepartmentQ = {
-        type: "list",
-        message: "What department would you like to see employees from?",
-        choices: departmentArray,
-        name: "name"
-}
-
-const getByManagerQ = {
-        type: "list",
-        message: "Which manager's employees would you like to see?",
-        choices: managerArray,
-        name: "name"
-};
-
-const addEmployeeQ = [{
-        type: "input",
-        message: "What is the new employee's first name?",
-        name: "firstName"
-    },
-    {
-        type: "input",
-        message: "What is the new employee's last name?",
-        name: "lastName"
-    },
-    {
-        type: "list",
-        message: "What is the employee's role?",
-        choices: roleArray,
-        name: "chosenRole"
-    },
-    {
-        type: "list",
-        message: "Who is the employee's manager?",
-        choices: employeeArray,
-        name: "chosenManager"
-    }]
-const removeEmployeeQ = {
-        type: "list",
-        message: "Which employee would you like to remove?",
-        choices: employeeArray,
-        name: "name"
-    }
-const updateEmployeeByRoleQ = [{
-        type: "list",
-        message: "Which employee would you like to update?",
-        choices: employeeArray,
-        name: "id"
-    },
-    {
-        type: "list",
-        message: "What is the employee's new role?",
-        choices: roleArray,
-        name: "role"
-    }]
-
-const updateEmployeeByManagerQ = [{
-        type: "list",
-        message: "Which employee would you like to update?",
-        choices: employeeArray,
-        name: "id"
-    },
-    {
-        type: "list",
-        message: "Who is the employee's new manager?",
-        choices: employeeArray,
-        name: "manager"
-    }];
-
-const initialQ = {
-        type: "list",
-        message: "What would you like to do?",
-        choices: [{name: "View all employees", value: null, function: getAll}, 
-                {name: "View employees by department", value: getByDepartmentQ, function: getByDepartment}, 
-                {name: "View employees by manager", value: getByManagerQ},
-                {name: "Add employee", value: addEmployeeQ},
-                {name: "Remove employee", value: removeEmployeeQ}, 
-                {name: "Update employee role", value: updateEmployeeByRoleQ}, 
-                {name: "Update employee manager", value: updateEmployeeByManagerQ}, 
-                {name: "End program", value: null}],
-        name: "choice"
-}
-
 // promisifying connection.query
 
 function query(sql, args) {
@@ -157,7 +75,8 @@ function getByManager(managerId) {
     query(`
         SELECT e.id, CONCAT(e.first_name, ' ', e.last_name) AS Employee FROM employee e
         INNER JOIN employee m ON m.id = e.manager_id
-        WHERE e.manager_id = ${managerId}
+        WHERE e.manager_id = ${managerId},
+        GROUP BY Employee
         `)
     .then(results => {
         console.table(results);
@@ -207,43 +126,66 @@ function updateEmployeeByManager(employeeId, managerId) {
 
 // function that asks the questions (need to find a way to make this loop better)
 
-async function runApp() {
-    let command = await inquirer.prompt(initialQ);
-      if (command) {
-        nextCommand = await inquirer.prompt(command.choice)
-        console.log("command: ", command);
-        console.log("nextCommand: ", nextCommand);
-        console.log("command.choice: ", command.choice);
-        command.choice.function(nextCommand);
-      }
-    
-    return command;
-  }
-
-  runApp();
-
 async function askQuestion() {
-    let userCommand = await inquirer.prompt(initial);
+    let userCommand = await inquirer.prompt({
+        type: "list",
+        message: "What would you like to do?",
+        choices: ["View all employees", "View employees by department", "View employees by manager",
+            "Add employee", "Remove employee", "Update employee role", "Update employee manager", "End program"],
+        name: "choice"
+        });
         switch (userCommand.choice) {
             case "View all employees":
                 getAll();
                 break;
             case "View employees by department":
                 departmentArray = await getDepartments();
-                let viewByDepartment = await inquirer.prompt(questions.viewByDepartment);
+                let viewByDepartment = await inquirer.prompt({
+                    type: "list",
+                    message: "What department would you like to see employees from?",
+                    choices: departmentArray,
+                    name: "name"
+                });
                 getByDepartment(viewByDepartment.name);
                 break;
             case "View employees by manager":
                 managerArray = await getManagers();
-                let viewByManager = await inquirer.prompt(questions.viewByManager);
+                let viewByManager = await inquirer.prompt({
+                    type: "list",
+                    message: "Which manager's employees would you like to see?",
+                    choices: managerArray,
+                    name: "name"
+                });
                 getByManager(viewByManager.name);
                 break;
             case "Add employee":
                 employeeArray = await getEmployees();
                 roleArray = await getRoles();
-                employeeArray.unshift({name: "none", value: null});
+                managerArray = await getManagers();
+                managerArray.unshift({name: "none", value: null});
 
-                let newEmployee = await inquirer.prompt(questions.addEmployee);
+                let newEmployee = await inquirer.prompt([{
+                    type: "input",
+                    message: "What is the new employee's first name?",
+                    name: "firstName"
+                },
+                {
+                    type: "input",
+                    message: "What is the new employee's last name?",
+                    name: "lastName"
+                },
+                {
+                    type: "list",
+                    message: "What is the employee's role?",
+                    choices: roleArray,
+                    name: "chosenRole"
+                },
+                {
+                    type: "list",
+                    message: "Who is the employee's manager?",
+                    choices: managerArray,
+                    name: "chosenManager"
+                }]);
 
                 const {firstName, lastName, chosenRole, chosenManager} = newEmployee;
                 addEmployee({firstName, lastName, chosenRole, chosenManager});
@@ -251,18 +193,45 @@ async function askQuestion() {
             case "Remove employee":
                 employeeArray = await getEmployees();
 
-                let employeeToRemove = await inquirer.prompt(questions.removeEmployee);
+                let employeeToRemove = await inquirer.prompt({
+                    type: "list",
+                    message: "Which employee would you like to remove?",
+                    choices: employeeArray,
+                    name: "name"
+                });
                 removeEmployee(employeeToRemove.name);
                 break;
             case "Update employee role":
                 employeeArray = await getEmployees();
                 roleArray = await getRoles();
-                let employeeRoleUpdate = await inquirer.prompt(questions.updateEmployeeByRole);
+                let employeeRoleUpdate = await inquirer.prompt([{
+                    type: "list",
+                    message: "Which employee would you like to update?",
+                    choices: employeeArray,
+                    name: "id"
+                },
+                {
+                    type: "list",
+                    message: "What is the employee's new role?",
+                    choices: roleArray,
+                    name: "role"
+                }]);
                 updateEmployeeByRole(employeeRoleUpdate.id, employeeRoleUpdate.role);
                 break;
             case "Update employee manager":
                 employeeArray = await getEmployees();
-                let employeeManagerUpdate = await inquirer.prompt(questions.updateEmployeeByManager);
+                let employeeManagerUpdate = await inquirer.prompt([{
+                    type: "list",
+                    message: "Which employee would you like to update?",
+                    choices: employeeArray,
+                    name: "id"
+                },
+                {
+                    type: "list",
+                    message: "Who is the employee's new manager?",
+                    choices: employeeArray,
+                    name: "manager"
+                }]);
                 updateEmployeeByManager(employeeManagerUpdate.id, employeeManagerUpdate.manager);
                 break;
             case "End program":
@@ -271,3 +240,5 @@ async function askQuestion() {
     };
 };
 
+
+askQuestion();
