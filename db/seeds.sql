@@ -9,5 +9,5 @@ VALUES ("Director", 100000, 3),
 ("HR Specialist", 50000, 1), ("HR Assistant", 30000, 1);
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Hitoshi", "Abe", 1, null), ("Noel", "Shimizu", 4, 1), ("Marti", "McElreath", 6, 3), ("Steven", "Acosta", 8, null), ("Lisette", "Mora", 9, 4), 
+VALUES ("Hitoshi", "Abe", 1, null), ("Noel", "Shimizu", 4, 1), ("Marti", "McElreath", 6, 2), ("Steven", "Acosta", 8, null), ("Lisette", "Mora", 9, 4), 
 ("Tara", "Wake", 10, null), ("Pamela", "Johnson", 11, 6);
