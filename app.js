@@ -53,7 +53,7 @@ async function getAll() {
 };
 
 async function getByDepartment(departmentId) {
-    query(`
+    let results = query(`
         SELECT e.id AS ID, e.first_name AS 'First Name', e.last_name AS 'Last Name', r.title AS 'Title' FROM employee e
         INNER JOIN role r ON e.role_id = r.id
         INNER JOIN department d ON r.department_id = d.id
@@ -63,16 +63,14 @@ async function getByDepartment(departmentId) {
     askQuestion();
 };
 
-function getByManager(managerId) {
-    query(`
+async function getByManager(managerId) {
+    let results = query(`
         SELECT e.id, CONCAT(e.first_name, ' ', e.last_name) AS Employee FROM employee e
         INNER JOIN employee m ON m.id = e.manager_id
         WHERE e.manager_id = ${managerId}
-        `)
-    .then(results => {
-        console.table(results);
-        askQuestion();
-    });
+        `);
+    console.table(results);
+    askQuestion();
 };
 
 function addEmployee({firstName, lastName, chosenRole, chosenManager}) {
