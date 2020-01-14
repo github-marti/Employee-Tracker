@@ -103,14 +103,14 @@ async function updateEmployeeByRole(employeeId, roleId) {
     };
 };
 
-function updateEmployeeByManager(employeeId, managerId) {
-    query(`
+async function updateEmployeeByManager(employeeId, managerId) {
+    let results = await query(`
         UPDATE employee SET manager_id = ${managerId} WHERE id = "${employeeId}"
         `)
-    .then(results => {
+    if (results) {
         console.log("Employee has been successfully updated.");
         askQuestion();
-    });
+    };
 };
 
 // function that asks the questions (need to find a way to make this loop better)
