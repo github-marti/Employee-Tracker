@@ -18,13 +18,11 @@ function query(sql, args) {
 
 async function getEmployees() {
     let employees = await query(`SELECT CONCAT(first_name, ' ', last_name) AS name, id AS value FROM employee`);
-
     return employees;
 };
 
 async function getDepartments() {
     let departments = await query(`SELECT name, id AS value FROM department`);
-
     return departments;
 };
 
@@ -38,7 +36,6 @@ async function getManagers() {
         SELECT CONCAT(e.first_name, ' ', e.last_name) AS name, e.id AS value FROM employee e
         INNER JOIN employee m ON m.manager_id = e.id
         `);
-
     return managers;
 };
 
