@@ -87,20 +87,20 @@ async function addEmployee({firstName, lastName, chosenRole, chosenManager}) {
 async function removeEmployee(employeeId) {
     let results = await query(`
         DELETE FROM employee e WHERE e.id = ${employeeId}
-        `)
+        `);
     if (results) {
         console.log(`Successfully removed employee with id ${employeeId}.`)
     };
 };
 
-function updateEmployeeByRole(employeeId, roleId) {
-    query(`
+async function updateEmployeeByRole(employeeId, roleId) {
+    let results = await query(`
         UPDATE employee SET role_id = ${roleId}, manager_id = null WHERE id = "${employeeId}"
-        `)
-    .then(results => {
+        `);
+    if (results) {
         console.log("Employee has been successfully updated.");
         askQuestion();
-    });
+    };
 };
 
 function updateEmployeeByManager(employeeId, managerId) {
