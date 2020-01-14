@@ -53,7 +53,7 @@ async function getAll() {
 };
 
 async function getByDepartment(departmentId) {
-    let results = query(`
+    let results = await query(`
         SELECT e.id AS ID, e.first_name AS 'First Name', e.last_name AS 'Last Name', r.title AS 'Title' FROM employee e
         INNER JOIN role r ON e.role_id = r.id
         INNER JOIN department d ON r.department_id = d.id
@@ -64,7 +64,7 @@ async function getByDepartment(departmentId) {
 };
 
 async function getByManager(managerId) {
-    let results = query(`
+    let results = await query(`
         SELECT e.id, CONCAT(e.first_name, ' ', e.last_name) AS Employee FROM employee e
         INNER JOIN employee m ON m.id = e.manager_id
         WHERE e.manager_id = ${managerId}
@@ -73,24 +73,24 @@ async function getByManager(managerId) {
     askQuestion();
 };
 
-function addEmployee({firstName, lastName, chosenRole, chosenManager}) {
-    query(`
+async function addEmployee({firstName, lastName, chosenRole, chosenManager}) {
+    let results = await query(`
         INSERT INTO employee (first_name, last_name, role_id, manager_id)
         VALUES ("${firstName}", "${lastName}", ${chosenRole}, ${chosenManager})
-        `)
-    .then(results => {
+        `);
+    if (results) {
         console.log(`Successfully added ${firstName} ${lastName}`)
         askQuestion();
-    });
+    };
 };
 
-function removeEmployee(employeeId) {
-    query(`
+async function removeEmployee(employeeId) {
+    let results = await query(`
         DELETE FROM employee e WHERE e.id = ${employeeId}
         `)
-    .then(results => {
-        askQuestion();
-    });
+    if (results) {
+        console.log(`Successfully removed employee with id ${employeeId}.`)
+    };
 };
 
 function updateEmployeeByRole(employeeId, roleId) {
