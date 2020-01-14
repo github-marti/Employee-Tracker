@@ -106,7 +106,7 @@ async function updateEmployeeByRole(employeeId, roleId) {
 async function updateEmployeeByManager(employeeId, managerId) {
     let results = await query(`
         UPDATE employee SET manager_id = ${managerId} WHERE id = "${employeeId}"
-        `)
+        `);
     if (results) {
         console.log("Employee has been successfully updated.");
         askQuestion();
