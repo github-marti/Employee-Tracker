@@ -52,17 +52,15 @@ async function getAll() {
     askQuestion();
 };
 
-function getByDepartment(departmentId) {
+async function getByDepartment(departmentId) {
     query(`
         SELECT e.id AS ID, e.first_name AS 'First Name', e.last_name AS 'Last Name', r.title AS 'Title' FROM employee e
         INNER JOIN role r ON e.role_id = r.id
         INNER JOIN department d ON r.department_id = d.id
         WHERE d.id = ${departmentId}
-        `)
-    .then(results => {
-        console.table(results);
-        askQuestion();
-    });
+        `);
+    console.table(results);
+    askQuestion();
 };
 
 function getByManager(managerId) {
